@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Login - RoleMark</title>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 400px; margin: 50px auto; padding: 20px; }
+        h1 { text-align: center; }
+        form { display: flex; flex-direction: column; gap: 10px; }
+        input { padding: 8px; }
+        button { padding: 10px; background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .error { color: red; }
+        .links { text-align: center; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>RoleMark Login</h1>
+    <form action="/api/auth/login" method="post" id="loginForm">
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit">Login</button>
+    </form>
+    <div class="links">
+        <a href="/api/auth/signup">Sign up</a>
+    </div>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                localStorage.setItem('token', result.token);
+                window.location.href = '/dashboard';
+            } else {
+                alert('Login failed');
+            }
+        });
+    </script>
+</body>
+</html>
+

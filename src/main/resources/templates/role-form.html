@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>New Role - RoleMark</title>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        form { display: flex; flex-direction: column; gap: 15px; }
+        label { font-weight: bold; }
+        input, textarea { padding: 8px; width: 100%; }
+        textarea { height: 200px; }
+        button { padding: 10px; background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Create New Role</h1>
+    <form th:action="@{/roles}" th:object="${role}" method="post">
+        <div>
+            <label>Title:</label>
+            <input type="text" th:field="*{title}" required maxlength="120">
+        </div>
+        <div>
+            <label>Job Description:</label>
+            <textarea th:field="*{jobDescription}" required maxlength="20000"></textarea>
+        </div>
+        <button type="submit">Create Role</button>
+    </form>
+    <a href="/dashboard">Back to Dashboard</a>
+</body>
+</html>
+

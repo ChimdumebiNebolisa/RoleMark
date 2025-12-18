@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>RoleMark - Transparent Candidate Comparison</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .value-prop {
+            text-align: center;
+            font-size: 1.2em;
+            margin: 30px 0;
+            color: #555;
+        }
+        .waitlist-form {
+            max-width: 400px;
+            margin: 40px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .waitlist-form input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            box-sizing: border-box;
+        }
+        .waitlist-form button {
+            width: 100%;
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .waitlist-form button:hover {
+            background: #0056b3;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <h1>RoleMark</h1>
+    <div class="value-prop">
+        <p><strong>Transparent, criteria-driven candidate comparison for recruiters and hiring managers.</strong></p>
+        <p>Compare candidates using explicit weighted rubrics with deterministic, explainable scoring. No AI black boxes. Just clear, evidence-based decisions.</p>
+    </div>
+    
+    <div class="waitlist-form">
+        <h2>Join the Waitlist</h2>
+        <p>Be the first to know when RoleMark launches.</p>
+        <form id="waitlistForm">
+            <input type="email" id="email" placeholder="Enter your email" required>
+            <button type="submit">Join Waitlist</button>
+        </form>
+        <div id="message" class="message"></div>
+    </div>
+    
+    <script>
+        document.getElementById('waitlistForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const messageDiv = document.getElementById('message');
+            
+            try {
+                const response = await fetch('/waitlist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                });
+                
+                if (response.ok) {
+                    messageDiv.textContent = 'Thank you! You\'ve been added to the waitlist.';
+                    messageDiv.className = 'message success';
+                    messageDiv.style.display = 'block';
+                    document.getElementById('email').value = '';
+                } else {
+                    messageDiv.textContent = 'Something went wrong. Please try again.';
+                    messageDiv.className = 'message error';
+                    messageDiv.style.display = 'block';
+                }
+            } catch (error) {
+                messageDiv.textContent = 'Something went wrong. Please try again.';
+                messageDiv.className = 'message error';
+                messageDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
+

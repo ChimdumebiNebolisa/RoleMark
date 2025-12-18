@@ -1,0 +1,15 @@
+# Production profile
+# All configuration via environment variables
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+logging:
+  level:
+    root: INFO
+    com.rolemark: INFO
+    org.springframework.security: WARN
+

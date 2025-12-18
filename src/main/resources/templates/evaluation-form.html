@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>New Evaluation - RoleMark</title>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        form { display: flex; flex-direction: column; gap: 15px; }
+        select, input { padding: 8px; }
+        .resumes { display: flex; flex-direction: column; gap: 5px; }
+        button { padding: 10px; background: #007bff; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Create New Evaluation</h1>
+    <form th:action="@{/evaluations}" th:object="${evaluation}" method="post">
+        <div>
+            <label>Role:</label>
+            <select th:field="*{roleId}" required>
+                <option value="">Select Role</option>
+                <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.title}"></option>
+            </select>
+        </div>
+        <div>
+            <label>Select Resumes (2-10):</label>
+            <div class="resumes">
+                <label th:each="resume : ${resumes}">
+                    <input type="checkbox" th:value="${resume.id}" name="resumeIds">
+                    <span th:text="${resume.filename}"></span>
+                </label>
+            </div>
+        </div>
+        <button type="submit">Create Evaluation</button>
+    </form>
+    <a href="/dashboard">Back to Dashboard</a>
+</body>
+</html>
+

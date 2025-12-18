@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Criteria - RoleMark</title>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1000px; margin: 50px auto; padding: 20px; }
+        .existing { margin: 20px 0; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background-color: #f2f2f2; }
+        form { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+        input, select, textarea { padding: 8px; }
+        button { padding: 10px; background: #007bff; color: white; border: none; cursor: pointer; }
+        .weight-warning { color: red; }
+    </style>
+</head>
+<body>
+    <h1 th:text="'Criteria for: ' + ${role.title}"></h1>
+    <p>Total Weight: <span th:text="${totalWeight}" th:class="${totalWeight == 100 ? '' : 'weight-warning'}"></span>/100</p>
+    
+    <div class="existing">
+        <h2>Existing Criteria</h2>
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Weight</th>
+            </tr>
+            <tr th:each="criterion : ${criteria}">
+                <td th:text="${criterion.name}"></td>
+                <td th:text="${criterion.type}"></td>
+                <td th:text="${criterion.weight}"></td>
+            </tr>
+        </table>
+    </div>
+    
+    <h2>Add New Criterion</h2>
+    <form th:action="@{/roles/{roleId}/criteria(roleId=${role.id})}" th:object="${criterion}" method="post">
+        <input type="text" th:field="*{name}" placeholder="Name" required>
+        <textarea th:field="*{description}" placeholder="Description"></textarea>
+        <input type="number" th:field="*{weight}" placeholder="Weight (0-100)" min="0" max="100" required>
+        <select th:field="*{type}" required>
+            <option value="">Select Type</option>
+            <option value="KEYWORD_SKILL">Keyword Skill</option>
+            <option value="CUSTOM_KEYWORDS">Custom Keywords</option>
+            <option value="EXPERIENCE_YEARS">Experience Years</option>
+            <option value="EDUCATION_LEVEL">Education Level</option>
+        </select>
+        <textarea th:field="*{config}" placeholder='Config JSON, e.g., {"requiredKeywords": ["java", "spring"]}'></textarea>
+        <button type="submit">Add Criterion</button>
+    </form>
+    
+    <a href="/dashboard">Back to Dashboard</a>
+</body>
+</html>
+

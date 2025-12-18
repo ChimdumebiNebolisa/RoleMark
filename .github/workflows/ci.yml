@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: rolemark_test
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+    
+    - name: Run tests
+      env:
+        SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/rolemark_test
+        SPRING_DATASOURCE_USERNAME: test_user
+        SPRING_DATASOURCE_PASSWORD: test_password
+        JWT_SECRET: test_jwt_secret_for_ci
+      run: ./mvnw clean test
+    
+    - name: Build application
+      run: ./mvnw clean package -DskipTests
+

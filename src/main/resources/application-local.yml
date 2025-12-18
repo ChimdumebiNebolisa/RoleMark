@@ -1,0 +1,13 @@
+# Local Docker Compose profile
+# Uses 'db' as the hostname for PostgreSQL service
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://db:5432/rolemark}
+    username: ${SPRING_DATASOURCE_USERNAME:rolemark_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+
+logging:
+  level:
+    com.rolemark: DEBUG
+
