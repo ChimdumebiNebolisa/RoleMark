@@ -3,6 +3,7 @@ package com.rolemark.config;
 import com.rolemark.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -31,8 +32,14 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            // Disable form login and HTTP basic auth to prevent default password generation
+            .formLogin(form -> form.disable())
+            .httpBasic(basic -> basic.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/health", "/actuator/health", "/actuator/health/**", "/api/auth/**", "/waitlist", "/", "/login", "/static/**", "/css/**").permitAll()
+                // Explicitly permit GET /api/health without authentication
+                .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
+                .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+                .requestMatchers("/api/auth/**", "/waitlist", "/", "/login", "/static/**", "/css/**").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
