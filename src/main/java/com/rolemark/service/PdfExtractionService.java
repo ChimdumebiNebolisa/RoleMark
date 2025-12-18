@@ -25,6 +25,8 @@ public class PdfExtractionService {
             throw new IllegalArgumentException("File must be a PDF");
         }
         
+        // PDFBox 3.0.1 doesn't support Loader.loadPDF(InputStream)
+        // Using byte[] instead, which is the supported API
         byte[] pdfBytes = file.getBytes();
         try (PDDocument document = Loader.loadPDF(pdfBytes)) {
             
@@ -43,6 +45,8 @@ public class PdfExtractionService {
     }
     
     public int getPageCount(MultipartFile file) throws IOException {
+        // PDFBox 3.0.1 doesn't support Loader.loadPDF(InputStream)
+        // Using byte[] instead, which is the supported API
         byte[] pdfBytes = file.getBytes();
         try (PDDocument document = Loader.loadPDF(pdfBytes)) {
             return document.getNumberOfPages();
