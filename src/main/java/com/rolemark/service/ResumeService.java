@@ -2,8 +2,13 @@ package com.rolemark.service;
 
 import com.rolemark.entity.ExtractedSignal;
 import com.rolemark.entity.Resume;
+import com.rolemark.exception.AccessDeniedException;
+import com.rolemark.exception.NotFoundException;
 import com.rolemark.repository.ExtractedSignalRepository;
 import com.rolemark.repository.ResumeRepository;
+import com.rolemark.repository.RoleRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,27 +17,41 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ResumeService {
+    
+    private static final Logger logger = LoggerFactory.getLogger(ResumeService.class);
     
     private final ResumeRepository resumeRepository;
     private final ExtractedSignalRepository extractedSignalRepository;
     private final PdfExtractionService pdfExtractionService;
     private final ResumeParserService resumeParserService;
+    private final RoleRepository roleRepository;
     
     public ResumeService(ResumeRepository resumeRepository,
                         ExtractedSignalRepository extractedSignalRepository,
                         PdfExtractionService pdfExtractionService,
-                        ResumeParserService resumeParserService) {
+                        ResumeParserService resumeParserService,
+                        RoleRepository roleRepository) {
         this.resumeRepository = resumeRepository;
         this.extractedSignalRepository = extractedSignalRepository;
         this.pdfExtractionService = pdfExtractionService;
         this.resumeParserService = resumeParserService;
+        this.roleRepository = roleRepository;
     }
     
     @Transactional
-    public Resume uploadResume(Long userId, MultipartFile file) throws IOException {
+    public Resume uploadResume(UUID userId, MultipartFile file, Long roleId) throws IOException {
+        // Validate role ownership if roleId is provided
+        if (roleId != null) {
+            boolean roleExists = roleRepository.findByIdAndUserId(roleId, userId).isPresent();
+            if (!roleExists) {
+                throw new AccessDeniedException("Role not found or does not belong to user");
+            }
+        }
+        
         // Extract text from PDF
         String extractedText;
         try {
@@ -47,6 +66,7 @@ public class ResumeService {
         // Create resume entity (metadata-first)
         Resume resume = new Resume();
         resume.setUserId(userId);
+        resume.setRoleId(roleId);
         resume.setFilename(file.getOriginalFilename());
         resume.setContentType(file.getContentType());
         resume.setFileSize(file.getSize());
@@ -55,6 +75,9 @@ public class ResumeService {
         // storagePath is optional - not setting it for MVP
         
         resume = resumeRepository.save(resume);
+        
+        logger.info("Resume uploaded: id={}, filename={}, roleId={}, userId={}", 
+                resume.getId(), file.getOriginalFilename(), roleId, userId);
         
         // Parse and extract signals
         List<ExtractedSignal> signals = resumeParserService.parseResume(extractedText);
@@ -66,19 +89,26 @@ public class ResumeService {
         return resume;
     }
     
-    public List<Resume> getAllResumes(Long userId) {
+    public List<Resume> getAllResumes(UUID userId) {
         return resumeRepository.findByUserId(userId);
     }
     
-    public Resume getResumeById(Long userId, Long resumeId) {
-        return resumeRepository.findByIdAndUserId(resumeId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("Resume not found"));
+    public Resume getResumeById(UUID userId, Long resumeId) {
+        Resume resume = resumeRepository.findById(resumeId)
+                .orElseThrow(() -> new NotFoundException("Resume not found"));
+        
+        // Return 403 if resume exists but doesn't belong to user
+        if (!resume.getUserId().equals(userId)) {
+            throw new AccessDeniedException("Access denied: Resume does not belong to user");
+        }
+        
+        return resume;
     }
     
     @Transactional
-    public void deleteResume(Long userId, Long resumeId) {
+    public void deleteResume(UUID userId, Long resumeId) {
         Resume resume = resumeRepository.findByIdAndUserId(resumeId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("Resume not found"));
+                .orElseThrow(() -> new NotFoundException("Resume not found"));
         
         // Delete associated signals first
         List<ExtractedSignal> signals = extractedSignalRepository.findByResumeId(resumeId);
