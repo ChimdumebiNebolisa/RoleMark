@@ -308,11 +308,12 @@ public class ResumeIngestionIT extends AbstractIntegrationTest {
                         .file(file)
                         .param("roleId", String.valueOf(roleIdB))
                         .header("Authorization", "Bearer " + jwtA))
-                .andExpect(status().isBadRequest()) // Currently returns 400, but should be 403
+                .andExpect(status().isForbidden())
                 .andReturn();
         
         GlobalExceptionHandler.ErrorResponse error = objectMapper.readValue(
                 result.getResponse().getContentAsString(), GlobalExceptionHandler.ErrorResponse.class);
+        assertEquals(403, error.getStatus());
         assertTrue(error.getMessage().contains("Role not found") || 
                    error.getMessage().contains("does not belong"));
     }
@@ -355,15 +356,15 @@ public class ResumeIngestionIT extends AbstractIntegrationTest {
         assertEquals(403, forbiddenError.getStatus());
         
         // User B attempts to access a non-existent resume -> should return 404
-        // Note: Currently returns 400, but should be 404
         Long nonExistentId = 999999999L;
         MvcResult notFoundResult = mockMvc.perform(get("/api/resumes/" + nonExistentId)
                         .header("Authorization", "Bearer " + jwtB))
-                .andExpect(status().isBadRequest()) // Currently 400, should be 404
+                .andExpect(status().isNotFound())
                 .andReturn();
         
         GlobalExceptionHandler.ErrorResponse notFoundError = objectMapper.readValue(
                 notFoundResult.getResponse().getContentAsString(), GlobalExceptionHandler.ErrorResponse.class);
+        assertEquals(404, notFoundError.getStatus());
         assertTrue(notFoundError.getMessage().contains("not found"));
     }
     
