@@ -18,6 +18,7 @@ public interface CriterionRepository extends JpaRepository<Criterion, Long> {
     // Phase 4 Milestone 1: User-scoped methods
     List<Criterion> findByUserIdAndRoleId(UUID userId, Long roleId);
     boolean existsByUserIdAndRoleIdAndName(UUID userId, Long roleId, String name);
+    Optional<Criterion> findByIdAndUserId(Long id, UUID userId);
     
     @Query("SELECT SUM(c.weight) FROM Criterion c WHERE c.roleId = :roleId")
     Integer sumWeightsByRoleId(@Param("roleId") Long roleId);

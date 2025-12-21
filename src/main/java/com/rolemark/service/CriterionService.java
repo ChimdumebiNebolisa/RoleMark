@@ -1,15 +1,22 @@
 package com.rolemark.service;
 
+import com.rolemark.dto.CreateCriterionRequest;
 import com.rolemark.dto.CriterionRequest;
 import com.rolemark.dto.CriterionResponse;
 import com.rolemark.entity.Criterion;
 import com.rolemark.entity.Role;
+import com.rolemark.exception.AccessDeniedException;
+import com.rolemark.exception.DuplicateResourceException;
+import com.rolemark.exception.NotFoundException;
 import com.rolemark.repository.CriterionRepository;
 import com.rolemark.repository.RoleRepository;
 import com.rolemark.validator.CriterionConfigValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -114,6 +121,96 @@ public class CriterionService {
         if (sum == null || sum != 100) {
             throw new IllegalArgumentException("Criteria weights must sum to exactly 100. Current sum: " + (sum == null ? 0 : sum));
         }
+    }
+    
+    // Phase 4 Milestone 2: MVP methods with CreateCriterionRequest
+    
+    @Transactional
+    public CriterionResponse createCriterion(UUID userId, Long roleId, CreateCriterionRequest request) {
+        // Verify role ownership - throw 403 if not owned by user
+        Role role = roleRepository.findByIdAndUserId(roleId, userId)
+                .orElseThrow(() -> new AccessDeniedException("Role does not belong to current user"));
+        
+        // Validate name (non-blank, max 120)
+        String name = request.getName();
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be blank");
+        }
+        if (name.length() > 120) {
+            throw new IllegalArgumentException("Name must not exceed 120 characters");
+        }
+        
+        // Validate weight (0..100)
+        Integer weight = request.getWeight();
+        if (weight == null || weight < 0 || weight > 100) {
+            throw new IllegalArgumentException("Weight must be between 0 and 100");
+        }
+        
+        // Validate keywords (non-null, default to empty list)
+        List<String> keywords = request.getKeywords();
+        if (keywords == null) {
+            keywords = java.util.Collections.emptyList();
+        }
+        
+        // Check for duplicate name (userId, roleId, name) -> 409 if duplicate
+        if (criterionRepository.existsByUserIdAndRoleIdAndName(userId, roleId, name.trim())) {
+            throw new DuplicateResourceException("Criterion with name '" + name + "' already exists for this role");
+        }
+        
+        // Create criterion
+        Criterion criterion = new Criterion();
+        criterion.setUserId(userId);
+        criterion.setRoleId(roleId);
+        criterion.setName(name.trim());
+        criterion.setWeight(weight);
+        criterion.setKeywords(keywords);
+        // Set defaults for fields not in MVP
+        criterion.setDescription(null);
+        criterion.setType("KEYWORD"); // Default type for MVP
+        criterion.setConfigJson(java.util.Map.of()); // Empty config for MVP
+        criterion = criterionRepository.save(criterion);
+        
+        return toMvpResponse(criterion);
+    }
+    
+    public List<CriterionResponse> getCriteriaForRole(UUID userId, Long roleId) {
+        // Verify role ownership - throw 403 if not owned by user
+        roleRepository.findByIdAndUserId(roleId, userId)
+                .orElseThrow(() -> new AccessDeniedException("Role does not belong to current user"));
+        
+        // Return only criteria for this user and role
+        return criterionRepository.findByUserIdAndRoleId(userId, roleId).stream()
+                .map(this::toMvpResponse)
+                .collect(Collectors.toList());
+    }
+    
+    @Transactional
+    public void deleteCriterionById(UUID userId, Long criterionId) {
+        // Verify criterion ownership - throw 403 if not owned by user, 404 if not found
+        Criterion criterion = criterionRepository.findByIdAndUserId(criterionId, userId)
+                .orElseThrow(() -> new NotFoundException("Criterion not found"));
+        
+        criterionRepository.delete(criterion);
+    }
+    
+    // Helper to convert Criterion to MVP CriterionResponse
+    private CriterionResponse toMvpResponse(Criterion criterion) {
+        LocalDateTime createdAt = criterion.getCreatedAt();
+        LocalDateTime updatedAt = criterion.getUpdatedAt();
+        Instant createdAtInstant = createdAt != null ? 
+            createdAt.atZone(ZoneId.systemDefault()).toInstant() : null;
+        Instant updatedAtInstant = updatedAt != null ? 
+            updatedAt.atZone(ZoneId.systemDefault()).toInstant() : null;
+        
+        return new CriterionResponse(
+                criterion.getId(),
+                criterion.getRoleId(),
+                criterion.getName(),
+                criterion.getWeight(),
+                criterion.getKeywords() != null ? criterion.getKeywords() : java.util.Collections.emptyList(),
+                createdAtInstant,
+                updatedAtInstant
+        );
     }
     
     private CriterionResponse toResponse(Criterion criterion) {
