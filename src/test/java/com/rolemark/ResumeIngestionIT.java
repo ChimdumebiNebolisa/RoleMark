@@ -12,6 +12,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -95,7 +96,8 @@ public class ResumeIngestionIT extends AbstractIntegrationTest {
             
             try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
                 contentStream.beginText();
-                contentStream.setFont(PDType1Font.HELVETICA, 12);
+                PDType1Font font = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
+                contentStream.setFont(font, 12);
                 contentStream.newLineAtOffset(50, 750);
                 contentStream.showText("Test Resume - Page 1");
                 contentStream.endText();
@@ -116,7 +118,8 @@ public class ResumeIngestionIT extends AbstractIntegrationTest {
                 
                 try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
                     contentStream.beginText();
-                    contentStream.setFont(PDType1Font.HELVETICA, 12);
+                    PDType1Font font = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
+                    contentStream.setFont(font, 12);
                     contentStream.newLineAtOffset(50, 750);
                     contentStream.showText("Test Resume - Page " + i);
                     contentStream.endText();
@@ -142,7 +145,8 @@ public class ResumeIngestionIT extends AbstractIntegrationTest {
                 
                 try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
                     contentStream.beginText();
-                    contentStream.setFont(PDType1Font.HELVETICA, 12);
+                    PDType1Font font = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
+                    contentStream.setFont(font, 12);
                     contentStream.newLineAtOffset(50, 750);
                     // Add substantial text to increase size
                     String text = "Test Resume - Page " + i + " - " + 
@@ -176,7 +180,8 @@ public class ResumeIngestionIT extends AbstractIntegrationTest {
                 
                 try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
                     contentStream.beginText();
-                    contentStream.setFont(PDType1Font.HELVETICA, 12);
+                    PDType1Font font = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
+                    contentStream.setFont(font, 12);
                     contentStream.newLineAtOffset(50, 750);
                     String text = "Test Resume - Page " + i + " - " + 
                             "This is a longer text to increase the file size significantly. ".repeat(100);

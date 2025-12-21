@@ -85,7 +85,8 @@ RoleMark is built as a Spring Boot 3 application with the following architecture
 - **Criterion**: Name, description, weight (0-100), type, config JSON
 - **Resume**: Metadata (filename, size, checksum), extracted text, optional storage path
 - **ExtractedSignal**: Type, value, evidence snippet, confidence level
-- **Evaluation**: Status (CREATED/RUNNING/COMPLETED/FAILED), user/role references
+- **Evaluation**: Status (CREATED/RUNNING/COMPLETED/FAILED), user/role references (tracks evaluation pipeline runs)
+- **EvaluationResult**: Deterministic scoring output (total_score + breakdown JSONB per resume) - Phase 4
 - **EvaluationSnapshot**: Immutable snapshot of role and criteria at evaluation time
 - **EvaluationCandidate**: Links evaluation to resumes with checksums
 - **ScoreBreakdown**: Total score, per-criterion breakdown JSON, explanation text

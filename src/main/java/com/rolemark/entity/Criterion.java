@@ -9,7 +9,9 @@ import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Entity
 @Table(name = "criteria")
@@ -18,6 +20,9 @@ public class Criterion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
     
     @Column(name = "role_id", nullable = false)
     private Long roleId;
@@ -46,6 +51,11 @@ public class Criterion {
     @Column(name = "config_json", nullable = false, columnDefinition = "jsonb")
     private Map<String, Object> configJson;
     
+    @NotNull
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(nullable = false, columnDefinition = "jsonb")
+    private List<String> keywords;
+    
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
     
@@ -71,6 +81,14 @@ public class Criterion {
     
     public void setId(Long id) {
         this.id = id;
+    }
+    
+    public UUID getUserId() {
+        return userId;
+    }
+    
+    public void setUserId(UUID userId) {
+        this.userId = userId;
     }
     
     public Long getRoleId() {
@@ -119,6 +137,14 @@ public class Criterion {
     
     public void setConfigJson(Map<String, Object> configJson) {
         this.configJson = configJson;
+    }
+    
+    public List<String> getKeywords() {
+        return keywords;
+    }
+    
+    public void setKeywords(List<String> keywords) {
+        this.keywords = keywords;
     }
     
     public LocalDateTime getCreatedAt() {

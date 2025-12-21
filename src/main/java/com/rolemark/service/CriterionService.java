@@ -41,12 +41,15 @@ public class CriterionService {
         CriterionConfigValidator.validateConfigByType(request.getType(), request.getConfig());
         
         Criterion criterion = new Criterion();
+        criterion.setUserId(userId);
         criterion.setRoleId(roleId);
         criterion.setName(request.getName());
         criterion.setDescription(request.getDescription());
         criterion.setWeight(request.getWeight());
         criterion.setType(request.getType());
         criterion.setConfigJson(request.getConfig());
+        // TODO: Set keywords from request when available
+        criterion.setKeywords(java.util.Collections.emptyList());
         criterion = criterionRepository.save(criterion);
         
         return toResponse(criterion);
@@ -57,7 +60,8 @@ public class CriterionService {
         roleRepository.findByIdAndUserId(roleId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Role not found"));
         
-        return criterionRepository.findByRoleId(roleId).stream()
+        // Use user-scoped method for Phase 4
+        return criterionRepository.findByUserIdAndRoleId(userId, roleId).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }

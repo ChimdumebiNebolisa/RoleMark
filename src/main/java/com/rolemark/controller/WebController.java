@@ -96,7 +96,7 @@ public class WebController {
     public String uploadResume(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
         try {
             UUID userId = SecurityUtil.getCurrentUserId();
-            resumeService.uploadResume(userId, file);
+            resumeService.uploadResume(userId, file, null);
             redirectAttributes.addFlashAttribute("message", "Resume uploaded successfully");
         } catch (IOException e) {
             redirectAttributes.addFlashAttribute("error", "Failed to upload resume: " + e.getMessage());
