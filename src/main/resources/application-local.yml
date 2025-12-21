@@ -9,6 +9,8 @@ spring:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://db:5432/rolemark}
     username: ${SPRING_DATASOURCE_USERNAME:rolemark_user}
     password: ${SPRING_DATASOURCE_PASSWORD:}
+  jpa:
+    open-in-view: false
 
 logging:
   level:
