@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "roles")
@@ -14,7 +15,7 @@ public class Role {
     private Long id;
     
     @Column(name = "user_id", nullable = false)
-    private Long userId;
+    private UUID userId;
     
     @NotBlank
     @Size(max = 120)
@@ -53,11 +54,11 @@ public class Role {
         this.id = id;
     }
     
-    public Long getUserId() {
+    public UUID getUserId() {
         return userId;
     }
     
-    public void setUserId(Long userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
     

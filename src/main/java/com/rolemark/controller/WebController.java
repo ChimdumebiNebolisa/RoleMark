@@ -13,6 +13,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Controller
 public class WebController {
@@ -37,7 +38,7 @@ public class WebController {
     
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
-        Long userId = SecurityUtil.getCurrentUserId();
+        UUID userId = SecurityUtil.getCurrentUserId();
         List<RoleResponse> roles = roleService.getAllRoles(userId);
         List<Resume> resumes = resumeService.getAllResumes(userId);
         List<Evaluation> evaluations = evaluationService.getAllEvaluations(userId);
@@ -56,7 +57,7 @@ public class WebController {
     
     @PostMapping("/roles")
     public String createRole(@ModelAttribute RoleRequest request, RedirectAttributes redirectAttributes) {
-        Long userId = SecurityUtil.getCurrentUserId();
+        UUID userId = SecurityUtil.getCurrentUserId();
         RoleResponse role = roleService.createRole(userId, request);
         redirectAttributes.addFlashAttribute("message", "Role created successfully");
         return "redirect:/roles/" + role.getId() + "/criteria";
@@ -64,7 +65,7 @@ public class WebController {
     
     @GetMapping("/roles/{roleId}/criteria")
     public String criteriaPage(@PathVariable Long roleId, Model model) {
-        Long userId = SecurityUtil.getCurrentUserId();
+        UUID userId = SecurityUtil.getCurrentUserId();
         RoleResponse role = roleService.getRoleById(userId, roleId);
         List<CriterionResponse> criteria = criterionService.getAllCriteria(userId, roleId);
         
@@ -80,7 +81,7 @@ public class WebController {
     @PostMapping("/roles/{roleId}/criteria")
     public String createCriterion(@PathVariable Long roleId, @ModelAttribute CriterionRequest request,
                                  RedirectAttributes redirectAttributes) {
-        Long userId = SecurityUtil.getCurrentUserId();
+        UUID userId = SecurityUtil.getCurrentUserId();
         criterionService.createCriterion(userId, roleId, request);
         redirectAttributes.addFlashAttribute("message", "Criterion added successfully");
         return "redirect:/roles/" + roleId + "/criteria";
@@ -94,7 +95,7 @@ public class WebController {
     @PostMapping("/resumes")
     public String uploadResume(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
         try {
-            Long userId = SecurityUtil.getCurrentUserId();
+            UUID userId = SecurityUtil.getCurrentUserId();
             resumeService.uploadResume(userId, file);
             redirectAttributes.addFlashAttribute("message", "Resume uploaded successfully");
         } catch (IOException e) {
@@ -105,7 +106,7 @@ public class WebController {
     
     @GetMapping("/evaluations/new")
     public String newEvaluationForm(Model model) {
-        Long userId = SecurityUtil.getCurrentUserId();
+        UUID userId = SecurityUtil.getCurrentUserId();
         List<RoleResponse> roles = roleService.getAllRoles(userId);
         List<Resume> resumes = resumeService.getAllResumes(userId);
         
@@ -117,7 +118,7 @@ public class WebController {
     
     @PostMapping("/evaluations")
     public String createEvaluation(@ModelAttribute EvaluationRequest request, RedirectAttributes redirectAttributes) {
-        Long userId = SecurityUtil.getCurrentUserId();
+        UUID userId = SecurityUtil.getCurrentUserId();
         Evaluation evaluation = evaluationService.createEvaluation(userId, request.getRoleId(), request.getResumeIds());
         redirectAttributes.addFlashAttribute("message", "Evaluation created successfully");
         return "redirect:/evaluations/" + evaluation.getId() + "/run";
@@ -125,7 +126,7 @@ public class WebController {
     
     @PostMapping("/evaluations/{evaluationId}/run")
     public String runEvaluation(@PathVariable Long evaluationId, RedirectAttributes redirectAttributes) {
-        Long userId = SecurityUtil.getCurrentUserId();
+        UUID userId = SecurityUtil.getCurrentUserId();
         try {
             evaluationService.runEvaluation(userId, evaluationId);
             redirectAttributes.addFlashAttribute("message", "Evaluation completed successfully");
@@ -137,7 +138,7 @@ public class WebController {
     
     @GetMapping("/evaluations/{evaluationId}/results")
     public String evaluationResults(@PathVariable Long evaluationId, Model model) {
-        Long userId = SecurityUtil.getCurrentUserId();
+        UUID userId = SecurityUtil.getCurrentUserId();
         Evaluation evaluation = evaluationService.getEvaluationById(userId, evaluationId);
         List<Map<String, Object>> results = evaluationService.getEvaluationResults(userId, evaluationId);
         
@@ -151,7 +152,7 @@ public class WebController {
                                 @RequestParam Long leftResumeId,
                                 @RequestParam Long rightResumeId,
                                 Model model) {
-        Long userId = SecurityUtil.getCurrentUserId();
+        UUID userId = SecurityUtil.getCurrentUserId();
         Map<String, Object> comparison = evaluationService.compareResumes(
                 userId, evaluationId, leftResumeId, rightResumeId);
         

@@ -6,11 +6,12 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface ResumeRepository extends JpaRepository<Resume, Long> {
-    List<Resume> findByUserId(Long userId);
-    Optional<Resume> findByIdAndUserId(Long id, Long userId);
+    List<Resume> findByUserId(UUID userId);
+    Optional<Resume> findByIdAndUserId(Long id, UUID userId);
     Optional<Resume> findByChecksumSha256(String checksum);
 }
 

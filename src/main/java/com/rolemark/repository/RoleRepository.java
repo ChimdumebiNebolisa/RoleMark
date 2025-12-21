@@ -6,11 +6,12 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
-    List<Role> findByUserId(Long userId);
-    Optional<Role> findByIdAndUserId(Long id, Long userId);
-    boolean existsByUserIdAndTitle(Long userId, String title);
+    List<Role> findByUserId(UUID userId);
+    Optional<Role> findByIdAndUserId(Long id, UUID userId);
+    boolean existsByUserIdAndTitle(UUID userId, String title);
 }
 

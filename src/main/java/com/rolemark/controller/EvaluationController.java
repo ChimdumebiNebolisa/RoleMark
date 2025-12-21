@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/evaluations")
@@ -24,7 +25,7 @@ public class EvaluationController {
     
     @PostMapping
     public ResponseEntity<Evaluation> createEvaluation(@Valid @RequestBody EvaluationRequest request) {
-        Long userId = SecurityUtil.getCurrentUserId();
+        UUID userId = SecurityUtil.getCurrentUserId();
         Evaluation evaluation = evaluationService.createEvaluation(
                 userId, request.getRoleId(), request.getResumeIds());
         return ResponseEntity.status(HttpStatus.CREATED).body(evaluation);
@@ -32,28 +33,28 @@ public class EvaluationController {
     
     @PostMapping("/{evaluationId}/run")
     public ResponseEntity<Map<String, String>> runEvaluation(@PathVariable Long evaluationId) {
-        Long userId = SecurityUtil.getCurrentUserId();
+        UUID userId = SecurityUtil.getCurrentUserId();
         evaluationService.runEvaluation(userId, evaluationId);
         return ResponseEntity.ok(Map.of("status", "completed", "message", "Evaluation completed successfully"));
     }
     
     @GetMapping
     public ResponseEntity<List<Evaluation>> getAllEvaluations() {
-        Long userId = SecurityUtil.getCurrentUserId();
+        UUID userId = SecurityUtil.getCurrentUserId();
         List<Evaluation> evaluations = evaluationService.getAllEvaluations(userId);
         return ResponseEntity.ok(evaluations);
     }
     
     @GetMapping("/{evaluationId}")
     public ResponseEntity<Evaluation> getEvaluationById(@PathVariable Long evaluationId) {
-        Long userId = SecurityUtil.getCurrentUserId();
+        UUID userId = SecurityUtil.getCurrentUserId();
         Evaluation evaluation = evaluationService.getEvaluationById(userId, evaluationId);
         return ResponseEntity.ok(evaluation);
     }
     
     @GetMapping("/{evaluationId}/results")
     public ResponseEntity<List<Map<String, Object>>> getEvaluationResults(@PathVariable Long evaluationId) {
-        Long userId = SecurityUtil.getCurrentUserId();
+        UUID userId = SecurityUtil.getCurrentUserId();
         List<Map<String, Object>> results = evaluationService.getEvaluationResults(userId, evaluationId);
         return ResponseEntity.ok(results);
     }
@@ -63,7 +64,7 @@ public class EvaluationController {
             @PathVariable Long evaluationId,
             @RequestParam Long leftResumeId,
             @RequestParam Long rightResumeId) {
-        Long userId = SecurityUtil.getCurrentUserId();
+        UUID userId = SecurityUtil.getCurrentUserId();
         Map<String, Object> comparison = evaluationService.compareResumes(
                 userId, evaluationId, leftResumeId, rightResumeId);
         return ResponseEntity.ok(comparison);

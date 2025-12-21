@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,7 +26,7 @@ public class CriterionService {
     }
     
     @Transactional
-    public CriterionResponse createCriterion(Long userId, Long roleId, CriterionRequest request) {
+    public CriterionResponse createCriterion(UUID userId, Long roleId, CriterionRequest request) {
         // Verify role ownership
         Role role = roleRepository.findByIdAndUserId(roleId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Role not found"));
@@ -51,7 +52,7 @@ public class CriterionService {
         return toResponse(criterion);
     }
     
-    public List<CriterionResponse> getAllCriteria(Long userId, Long roleId) {
+    public List<CriterionResponse> getAllCriteria(UUID userId, Long roleId) {
         // Verify role ownership
         roleRepository.findByIdAndUserId(roleId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Role not found"));
@@ -61,7 +62,7 @@ public class CriterionService {
                 .collect(Collectors.toList());
     }
     
-    public CriterionResponse getCriterionById(Long userId, Long roleId, Long criterionId) {
+    public CriterionResponse getCriterionById(UUID userId, Long roleId, Long criterionId) {
         // Verify role ownership
         roleRepository.findByIdAndUserId(roleId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Role not found"));
@@ -72,7 +73,7 @@ public class CriterionService {
     }
     
     @Transactional
-    public CriterionResponse updateCriterion(Long userId, Long roleId, Long criterionId, CriterionRequest request) {
+    public CriterionResponse updateCriterion(UUID userId, Long roleId, Long criterionId, CriterionRequest request) {
         // Verify role ownership
         roleRepository.findByIdAndUserId(roleId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Role not found"));
@@ -94,7 +95,7 @@ public class CriterionService {
     }
     
     @Transactional
-    public void deleteCriterion(Long userId, Long roleId, Long criterionId) {
+    public void deleteCriterion(UUID userId, Long roleId, Long criterionId) {
         // Verify role ownership
         roleRepository.findByIdAndUserId(roleId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Role not found"));

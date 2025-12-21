@@ -277,6 +277,165 @@ The system **never** states "Candidate X is better". Instead, it outputs:
    ./mvnw spring-boot:run
    ```
 
+## API Usage
+
+### Authentication
+
+The API uses JWT-based authentication. You need to register a user and then use the JWT token in subsequent requests.
+
+#### Register a New User
+
+```bash
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "securepassword123"
+  }'
+```
+
+Response:
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "email": "user@example.com"
+}
+```
+
+#### Login
+
+```bash
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "securepassword123"
+  }'
+```
+
+Response:
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "email": "user@example.com"
+}
+```
+
+#### Using the JWT Token
+
+Include the JWT token in the `Authorization` header for authenticated requests:
+
+```bash
+curl -X GET http://localhost:8080/api/roles \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+**Note:** The token expires after 24 hours. You'll need to login again to get a new token.
+
+### Resume Management
+
+#### Upload a Resume (with roleId)
+
+**Using curl:**
+```bash
+curl -X POST http://localhost:8080/api/resumes \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -F "file=@/path/to/resume.pdf" \
+  -F "roleId=1"
+```
+
+**Using PowerShell:**
+```powershell
+$token = "YOUR_JWT_TOKEN"
+$filePath = "C:\path\to\resume.pdf"
+$roleId = 1
+
+$headers = @{
+    "Authorization" = "Bearer $token"
+}
+
+$formData = @{
+    file = Get-Item -Path $filePath
+    roleId = $roleId
+}
+
+Invoke-RestMethod -Uri "http://localhost:8080/api/resumes" `
+    -Method Post `
+    -Headers $headers `
+    -Form $formData
+```
+
+**Upload without roleId (optional):**
+```bash
+curl -X POST http://localhost:8080/api/resumes \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -F "file=@/path/to/resume.pdf"
+```
+
+**PowerShell (without roleId):**
+```powershell
+$token = "YOUR_JWT_TOKEN"
+$filePath = "C:\path\to\resume.pdf"
+
+$headers = @{
+    "Authorization" = "Bearer $token"
+}
+
+$formData = @{
+    file = Get-Item -Path $filePath
+}
+
+Invoke-RestMethod -Uri "http://localhost:8080/api/resumes" `
+    -Method Post `
+    -Headers $headers `
+    -Form $formData
+```
+
+#### Get All Resumes
+
+**Using curl:**
+```bash
+curl -X GET http://localhost:8080/api/resumes \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+**Using PowerShell:**
+```powershell
+$token = "YOUR_JWT_TOKEN"
+
+$headers = @{
+    "Authorization" = "Bearer $token"
+}
+
+Invoke-RestMethod -Uri "http://localhost:8080/api/resumes" `
+    -Method Get `
+    -Headers $headers
+```
+
+#### Get Resume by ID
+
+**Using curl:**
+```bash
+curl -X GET http://localhost:8080/api/resumes/1 \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+**Using PowerShell:**
+```powershell
+$token = "YOUR_JWT_TOKEN"
+$resumeId = 1
+
+$headers = @{
+    "Authorization" = "Bearer $token"
+}
+
+Invoke-RestMethod -Uri "http://localhost:8080/api/resumes/$resumeId" `
+    -Method Get `
+    -Headers $headers
+```
+
+**Note:** Returns 403 Forbidden if the resume exists but does not belong to the authenticated user.
+
 ## Testing
 
 Run tests with Maven:

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,7 +21,7 @@ public class RoleService {
     }
     
     @Transactional
-    public RoleResponse createRole(Long userId, RoleRequest request) {
+    public RoleResponse createRole(UUID userId, RoleRequest request) {
         Role role = new Role();
         role.setUserId(userId);
         role.setTitle(request.getTitle());
@@ -29,20 +30,20 @@ public class RoleService {
         return toResponse(role);
     }
     
-    public List<RoleResponse> getAllRoles(Long userId) {
+    public List<RoleResponse> getAllRoles(UUID userId) {
         return roleRepository.findByUserId(userId).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
     
-    public RoleResponse getRoleById(Long userId, Long roleId) {
+    public RoleResponse getRoleById(UUID userId, Long roleId) {
         Role role = roleRepository.findByIdAndUserId(roleId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Role not found"));
         return toResponse(role);
     }
     
     @Transactional
-    public RoleResponse updateRole(Long userId, Long roleId, RoleRequest request) {
+    public RoleResponse updateRole(UUID userId, Long roleId, RoleRequest request) {
         Role role = roleRepository.findByIdAndUserId(roleId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Role not found"));
         role.setTitle(request.getTitle());
@@ -52,7 +53,7 @@ public class RoleService {
     }
     
     @Transactional
-    public void deleteRole(Long userId, Long roleId) {
+    public void deleteRole(UUID userId, Long roleId) {
         Role role = roleRepository.findByIdAndUserId(roleId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Role not found"));
         roleRepository.delete(role);

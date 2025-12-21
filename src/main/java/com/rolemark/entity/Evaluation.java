@@ -2,6 +2,7 @@ package com.rolemark.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "evaluations")
@@ -12,7 +13,7 @@ public class Evaluation {
     private Long id;
     
     @Column(name = "user_id", nullable = false)
-    private Long userId;
+    private UUID userId;
     
     @Column(name = "role_id", nullable = false)
     private Long roleId;
@@ -42,11 +43,11 @@ public class Evaluation {
         this.id = id;
     }
     
-    public Long getUserId() {
+    public UUID getUserId() {
         return userId;
     }
     
-    public void setUserId(Long userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
     

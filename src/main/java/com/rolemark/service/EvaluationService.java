@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -48,7 +49,7 @@ public class EvaluationService {
     }
     
     @Transactional
-    public Evaluation createEvaluation(Long userId, Long roleId, List<Long> resumeIds) {
+    public Evaluation createEvaluation(UUID userId, Long roleId, List<Long> resumeIds) {
         // Validate resume count (2-10)
         if (resumeIds.size() < 2 || resumeIds.size() > 10) {
             throw new IllegalArgumentException("Evaluation must include 2-10 resumes");
@@ -85,7 +86,7 @@ public class EvaluationService {
     }
     
     @Transactional
-    public void runEvaluation(Long userId, Long evaluationId) {
+    public void runEvaluation(UUID userId, Long evaluationId) {
         Evaluation evaluation = evaluationRepository.findByIdAndUserId(evaluationId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Evaluation not found"));
         
@@ -161,16 +162,16 @@ public class EvaluationService {
         }
     }
     
-    public List<Evaluation> getAllEvaluations(Long userId) {
+    public List<Evaluation> getAllEvaluations(UUID userId) {
         return evaluationRepository.findByUserId(userId);
     }
     
-    public Evaluation getEvaluationById(Long userId, Long evaluationId) {
+    public Evaluation getEvaluationById(UUID userId, Long evaluationId) {
         return evaluationRepository.findByIdAndUserId(evaluationId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Evaluation not found"));
     }
     
-    public List<Map<String, Object>> getEvaluationResults(Long userId, Long evaluationId) {
+    public List<Map<String, Object>> getEvaluationResults(UUID userId, Long evaluationId) {
         Evaluation evaluation = evaluationRepository.findByIdAndUserId(evaluationId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Evaluation not found"));
         
@@ -194,7 +195,7 @@ public class EvaluationService {
                 .collect(Collectors.toList());
     }
     
-    public Map<String, Object> compareResumes(Long userId, Long evaluationId, Long leftResumeId, Long rightResumeId) {
+    public Map<String, Object> compareResumes(UUID userId, Long evaluationId, Long leftResumeId, Long rightResumeId) {
         Evaluation evaluation = evaluationRepository.findByIdAndUserId(evaluationId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Evaluation not found"));
         

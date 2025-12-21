@@ -24,6 +24,12 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
     
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody SignupRequest request) {
+        AuthResponse response = authService.signup(request);
+        return ResponseEntity.ok(response);
+    }
+    
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);

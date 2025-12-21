@@ -2,6 +2,7 @@ package com.rolemark.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "resumes")
@@ -12,7 +13,7 @@ public class Resume {
     private Long id;
     
     @Column(name = "user_id", nullable = false)
-    private Long userId;
+    private UUID userId;
     
     @Column(nullable = false)
     private String filename;
@@ -32,6 +33,9 @@ public class Resume {
     @Column(name = "storage_path", length = 500)
     private String storagePath; // Optional, for local temp storage
     
+    @Column(name = "role_id")
+    private Long roleId; // Optional, associates resume with a role
+    
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
     
@@ -49,11 +53,11 @@ public class Resume {
         this.id = id;
     }
     
-    public Long getUserId() {
+    public UUID getUserId() {
         return userId;
     }
     
-    public void setUserId(Long userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
     
@@ -103,6 +107,14 @@ public class Resume {
     
     public void setStoragePath(String storagePath) {
         this.storagePath = storagePath;
+    }
+    
+    public Long getRoleId() {
+        return roleId;
+    }
+    
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
     }
     
     public LocalDateTime getCreatedAt() {
