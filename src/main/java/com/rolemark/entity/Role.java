@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 
 import java.time.Instant;
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 @Table(name = "roles", indexes = {
@@ -15,11 +16,10 @@ import java.util.Objects;
 public class Role {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     @Column(name = "user_id", nullable = false)
-    private Long userId;
+    private UUID userId;
 
     @NotBlank
     @Size(max = 120)
@@ -39,6 +39,9 @@ public class Role {
 
     @PrePersist
     protected void onCreate() {
+        if (id == null) {
+            id = UUID.randomUUID();
+        }
         Instant now = Instant.now();
         createdAt = now;
         updatedAt = now;
@@ -52,25 +55,25 @@ public class Role {
     public Role() {
     }
 
-    public Role(Long userId, String title, String jobDescription) {
+    public Role(UUID userId, String title, String jobDescription) {
         this.userId = userId;
         this.title = title;
         this.jobDescription = jobDescription;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
-    public Long getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
 

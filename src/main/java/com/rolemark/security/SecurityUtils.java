@@ -3,6 +3,8 @@ package com.rolemark.security;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.UUID;
+
 public class SecurityUtils {
 
     public static UserPrincipal getCurrentUser() {
@@ -13,7 +15,7 @@ public class SecurityUtils {
         throw new IllegalStateException("No authenticated user found");
     }
 
-    public static Long getCurrentUserId() {
+    public static UUID getCurrentUserId() {
         return getCurrentUser().getUserId();
     }
 }

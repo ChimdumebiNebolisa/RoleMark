@@ -3,9 +3,10 @@ package com.rolemark.dto;
 import com.rolemark.entity.Criterion;
 
 import java.time.Instant;
+import java.util.UUID;
 
 public class CriterionResponse {
-    private Long id;
+    private UUID id;
     private String name;
     private String description;
     private Integer weight;
@@ -17,7 +18,7 @@ public class CriterionResponse {
     public CriterionResponse() {
     }
 
-    public CriterionResponse(Long id, String name, String description, Integer weight,
+    public CriterionResponse(UUID id, String name, String description, Integer weight,
                             Criterion.CriterionType type, Object config, Instant createdAt, Instant updatedAt) {
         this.id = id;
         this.name = name;
@@ -29,11 +30,11 @@ public class CriterionResponse {
         this.updatedAt = updatedAt;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

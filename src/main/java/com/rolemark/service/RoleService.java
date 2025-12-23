@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,7 +22,7 @@ public class RoleService {
     }
 
     @Transactional
-    public RoleResponse createRole(Long userId, RoleRequest request) {
+    public RoleResponse createRole(UUID userId, RoleRequest request) {
         // Check uniqueness constraint
         if (roleRepository.existsByUserIdAndTitle(userId, request.getTitle())) {
             throw new IllegalArgumentException("Role with this title already exists for this user");
@@ -32,20 +33,20 @@ public class RoleService {
         return toResponse(role);
     }
 
-    public List<RoleResponse> getAllRoles(Long userId) {
+    public List<RoleResponse> getAllRoles(UUID userId) {
         return roleRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
-    public RoleResponse getRoleById(Long userId, Long roleId) {
+    public RoleResponse getRoleById(UUID userId, UUID roleId) {
         Role role = roleRepository.findByIdAndUserId(roleId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
         return toResponse(role);
     }
 
     @Transactional
-    public RoleResponse updateRole(Long userId, Long roleId, RoleRequest request) {
+    public RoleResponse updateRole(UUID userId, UUID roleId, RoleRequest request) {
         Role role = roleRepository.findByIdAndUserId(roleId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
@@ -62,7 +63,7 @@ public class RoleService {
     }
 
     @Transactional
-    public void deleteRole(Long userId, Long roleId) {
+    public void deleteRole(UUID userId, UUID roleId) {
         Role role = roleRepository.findByIdAndUserId(roleId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
         roleRepository.delete(role);

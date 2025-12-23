@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Component
@@ -26,9 +27,9 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(Long userId, String email) {
+    public String generateToken(UUID userId, String email) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", userId);
+        claims.put("userId", userId.toString());
         claims.put("email", email);
         return createToken(claims, email);
     }
@@ -46,13 +47,11 @@ public class JwtUtil {
                 .compact();
     }
 
-    public Long getUserIdFromToken(String token) {
+    public UUID getUserIdFromToken(String token) {
         Claims claims = getAllClaimsFromToken(token);
         Object userId = claims.get("userId");
-        if (userId instanceof Integer) {
-            return ((Integer) userId).longValue();
-        } else if (userId instanceof Long) {
-            return (Long) userId;
+        if (userId instanceof String) {
+            return UUID.fromString((String) userId);
         }
         return null;
     }

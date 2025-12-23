@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Size;
 
 import java.time.Instant;
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 @Table(name = "criteria", indexes = {
@@ -16,11 +17,10 @@ import java.util.Objects;
 public class Criterion {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     @Column(name = "role_id", nullable = false)
-    private Long roleId;
+    private UUID roleId;
 
     @NotBlank
     @Size(max = 80)
@@ -51,6 +51,9 @@ public class Criterion {
 
     @PrePersist
     protected void onCreate() {
+        if (id == null) {
+            id = UUID.randomUUID();
+        }
         Instant now = Instant.now();
         createdAt = now;
         updatedAt = now;
@@ -64,7 +67,7 @@ public class Criterion {
     public Criterion() {
     }
 
-    public Criterion(Long roleId, String name, String description, Integer weight, CriterionType type, String configJson) {
+    public Criterion(UUID roleId, String name, String description, Integer weight, CriterionType type, String configJson) {
         this.roleId = roleId;
         this.name = name;
         this.description = description;
@@ -73,19 +76,19 @@ public class Criterion {
         this.configJson = configJson;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
-    public Long getRoleId() {
+    public UUID getRoleId() {
         return roleId;
     }
 
-    public void setRoleId(Long roleId) {
+    public void setRoleId(UUID roleId) {
         this.roleId = roleId;
     }
 

@@ -13,6 +13,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.UUID;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -95,7 +97,7 @@ class RoleIntegrationTest {
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-        Long userBRoleId = objectMapper.readTree(roleResponseB).get("id").asLong();
+        UUID userBRoleId = UUID.fromString(objectMapper.readTree(roleResponseB).get("id").asText());
 
         // User A tries to read user B's role - should get 404
         mockMvc.perform(get("/api/roles/" + userBRoleId)

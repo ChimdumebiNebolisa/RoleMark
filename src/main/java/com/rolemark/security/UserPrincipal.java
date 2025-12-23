@@ -1,17 +1,18 @@
 package com.rolemark.security;
 
 import java.security.Principal;
+import java.util.UUID;
 
 public class UserPrincipal implements Principal {
-    private final Long userId;
+    private final UUID userId;
     private final String email;
 
-    public UserPrincipal(Long userId, String email) {
+    public UserPrincipal(UUID userId, String email) {
         this.userId = userId;
         this.email = email;
     }
 
-    public Long getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 

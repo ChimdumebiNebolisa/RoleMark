@@ -3,6 +3,7 @@ package com.rolemark.exception;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.MDC;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
@@ -55,6 +56,32 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(),
                 "VALIDATION_ERROR",
                 errors,
+                path,
+                correlationId
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(
+            DataIntegrityViolationException ex, WebRequest request) {
+
+        String path = getPath(request);
+        String correlationId = getCorrelationId(request);
+
+        // Check if it's a unique constraint violation (e.g., role title uniqueness)
+        String message = ex.getMessage();
+        if (message != null && (message.contains("UNIQUE") || message.contains("unique"))) {
+            message = "Role with this title already exists for this user";
+        } else {
+            message = "Data integrity violation";
+        }
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "VALIDATION_ERROR",
+                message,
                 path,
                 correlationId
         );

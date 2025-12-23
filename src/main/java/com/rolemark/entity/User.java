@@ -6,14 +6,14 @@ import jakarta.validation.constraints.NotBlank;
 
 import java.time.Instant;
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users")
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     @NotBlank
     @Email
@@ -32,6 +32,9 @@ public class User {
 
     @PrePersist
     protected void onCreate() {
+        if (id == null) {
+            id = UUID.randomUUID();
+        }
         Instant now = Instant.now();
         createdAt = now;
         updatedAt = now;
@@ -50,11 +53,11 @@ public class User {
         this.passwordHash = passwordHash;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

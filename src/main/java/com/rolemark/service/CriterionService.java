@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,7 +32,7 @@ public class CriterionService {
     }
 
     @Transactional
-    public CriterionResponse createCriterion(Long userId, Long roleId, CriterionRequest request) {
+    public CriterionResponse createCriterion(UUID userId, UUID roleId, CriterionRequest request) {
         // Verify role ownership
         roleService.getRoleById(userId, roleId);
 
@@ -67,7 +68,7 @@ public class CriterionService {
         return toResponse(criterion);
     }
 
-    public List<CriterionResponse> getAllCriteria(Long userId, Long roleId) {
+    public List<CriterionResponse> getAllCriteria(UUID userId, UUID roleId) {
         // Verify role ownership
         roleService.getRoleById(userId, roleId);
 
@@ -76,7 +77,7 @@ public class CriterionService {
                 .collect(Collectors.toList());
     }
 
-    public CriterionResponse getCriterionById(Long userId, Long roleId, Long criterionId) {
+    public CriterionResponse getCriterionById(UUID userId, UUID roleId, UUID criterionId) {
         // Verify role ownership
         roleService.getRoleById(userId, roleId);
 
@@ -86,7 +87,7 @@ public class CriterionService {
     }
 
     @Transactional
-    public CriterionResponse updateCriterion(Long userId, Long roleId, Long criterionId, CriterionRequest request) {
+    public CriterionResponse updateCriterion(UUID userId, UUID roleId, UUID criterionId, CriterionRequest request) {
         // Verify role ownership
         roleService.getRoleById(userId, roleId);
 
@@ -117,7 +118,7 @@ public class CriterionService {
     }
 
     @Transactional
-    public void deleteCriterion(Long userId, Long roleId, Long criterionId) {
+    public void deleteCriterion(UUID userId, UUID roleId, UUID criterionId) {
         // Verify role ownership
         roleService.getRoleById(userId, roleId);
 

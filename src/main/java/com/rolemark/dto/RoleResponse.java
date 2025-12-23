@@ -1,9 +1,10 @@
 package com.rolemark.dto;
 
 import java.time.Instant;
+import java.util.UUID;
 
 public class RoleResponse {
-    private Long id;
+    private UUID id;
     private String title;
     private String jobDescription;
     private Instant createdAt;
@@ -12,7 +13,7 @@ public class RoleResponse {
     public RoleResponse() {
     }
 
-    public RoleResponse(Long id, String title, String jobDescription, Instant createdAt, Instant updatedAt) {
+    public RoleResponse(UUID id, String title, String jobDescription, Instant createdAt, Instant updatedAt) {
         this.id = id;
         this.title = title;
         this.jobDescription = jobDescription;
@@ -20,11 +21,11 @@ public class RoleResponse {
         this.updatedAt = updatedAt;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

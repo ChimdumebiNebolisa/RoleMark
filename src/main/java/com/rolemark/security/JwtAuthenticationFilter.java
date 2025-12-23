@@ -35,7 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
 
                 String email = jwtUtil.getEmailFromToken(token);
-                Long userId = jwtUtil.getUserIdFromToken(token);
+                java.util.UUID userId = jwtUtil.getUserIdFromToken(token);
 
                 if (email != null && userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     UserPrincipal principal = new UserPrincipal(userId, email);
