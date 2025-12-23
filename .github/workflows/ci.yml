@@ -23,3 +23,6 @@ jobs:
       - name: Run tests
         run: mvn -B -ntp test
 
+      - name: Build package
+        run: mvn -B -ntp -DskipTests clean package
+
