@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
 
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -211,6 +212,67 @@ class RoleIntegrationTest {
                 .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"))
                 .andExpect(jsonPath("$.message").value("Invalid config for criterion type: KEYWORD_SKILL"))
                 .andExpect(jsonPath("$.correlationId").exists())
+                .andExpect(jsonPath("$.path").value("/api/roles/" + roleId + "/criteria"))
+                .andExpect(jsonPath("$.timestamp").exists());
+    }
+
+    @Test
+    void criteriaLimitExceededReturns400WithValidationError() throws Exception {
+        // Test: creating more than 15 criteria returns 400 with error="VALIDATION_ERROR"
+        // First create a role
+        RoleRequest roleRequest = new RoleRequest("Test Role", "Test description");
+        String roleResponse = mockMvc.perform(post("/api/roles")
+                        .header("Authorization", "Bearer " + userAToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(roleRequest)))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        UUID roleId = UUID.fromString(objectMapper.readTree(roleResponse).get("id").asText());
+
+        // Create 15 valid criteria
+        for (int i = 1; i <= 15; i++) {
+            java.util.Map<String, Object> validConfig = new java.util.HashMap<>();
+            validConfig.put("requiredKeywords", java.util.Arrays.asList("keyword" + i));
+            validConfig.put("matchMode", "ANY");
+            CriterionRequest criterionRequest = new CriterionRequest(
+                    "Criterion " + i,
+                    "Description " + i,
+                    5,
+                    Criterion.CriterionType.KEYWORD_SKILL,
+                    validConfig
+            );
+
+            mockMvc.perform(post("/api/roles/" + roleId + "/criteria")
+                            .header("Authorization", "Bearer " + userAToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(criterionRequest)))
+                    .andExpect(status().isCreated());
+        }
+
+        // Attempt to create the 16th criterion
+        java.util.Map<String, Object> validConfig = new java.util.HashMap<>();
+        validConfig.put("requiredKeywords", java.util.Arrays.asList("keyword16"));
+        validConfig.put("matchMode", "ANY");
+        CriterionRequest criterionRequest = new CriterionRequest(
+                "Criterion 16",
+                "Description 16",
+                5,
+                Criterion.CriterionType.KEYWORD_SKILL,
+                validConfig
+        );
+
+        mockMvc.perform(post("/api/roles/" + roleId + "/criteria")
+                        .header("Authorization", "Bearer " + userAToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(criterionRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.message").value(containsString("15")))
+                .andExpect(jsonPath("$.correlationId").exists())
+                .andExpect(jsonPath("$.correlationId").value(not(emptyString())))
                 .andExpect(jsonPath("$.path").value("/api/roles/" + roleId + "/criteria"))
                 .andExpect(jsonPath("$.timestamp").exists());
     }
