@@ -4,6 +4,7 @@ import com.rolemark.dto.RoleRequest;
 import com.rolemark.dto.RoleResponse;
 import com.rolemark.entity.Role;
 import com.rolemark.exception.ResourceNotFoundException;
+import com.rolemark.exception.ValidationException;
 import com.rolemark.repository.RoleRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +26,7 @@ public class RoleService {
     public RoleResponse createRole(UUID userId, RoleRequest request) {
         // Check uniqueness constraint
         if (roleRepository.existsByUserIdAndTitle(userId, request.getTitle())) {
-            throw new IllegalArgumentException("Role with this title already exists for this user");
+            throw new ValidationException("Role title must be unique per user");
         }
 
         Role role = new Role(userId, request.getTitle(), request.getJobDescription());
@@ -53,7 +54,7 @@ public class RoleService {
         // Check uniqueness if title is changing
         if (!role.getTitle().equals(request.getTitle()) &&
             roleRepository.existsByUserIdAndTitle(userId, request.getTitle())) {
-            throw new IllegalArgumentException("Role with this title already exists for this user");
+            throw new ValidationException("Role title must be unique per user");
         }
 
         role.setTitle(request.getTitle());

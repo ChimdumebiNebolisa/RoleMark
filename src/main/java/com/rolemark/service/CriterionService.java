@@ -5,6 +5,7 @@ import com.rolemark.dto.CriterionRequest;
 import com.rolemark.dto.CriterionResponse;
 import com.rolemark.entity.Criterion;
 import com.rolemark.exception.ResourceNotFoundException;
+import com.rolemark.exception.ValidationException;
 import com.rolemark.repository.CriterionRepository;
 import com.rolemark.validation.CriterionConfigValidator;
 import org.springframework.stereotype.Service;
@@ -39,12 +40,12 @@ public class CriterionService {
         // Check max criteria limit
         int currentCount = criterionRepository.countByRoleId(roleId);
         if (currentCount >= MAX_CRITERIA_PER_ROLE) {
-            throw new IllegalArgumentException("Maximum " + MAX_CRITERIA_PER_ROLE + " criteria allowed per role");
+            throw new ValidationException("Maximum " + MAX_CRITERIA_PER_ROLE + " criteria allowed per role");
         }
 
         // Validate config based on type
         if (!CriterionConfigValidator.isValidConfigForType(request.getConfig(), request.getType())) {
-            throw new IllegalArgumentException("Invalid config for criterion type: " + request.getType());
+            throw new ValidationException("Invalid config for criterion type: " + request.getType());
         }
 
         // Serialize config to JSON
@@ -52,7 +53,7 @@ public class CriterionService {
         try {
             configJson = objectMapper.writeValueAsString(request.getConfig());
         } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid config format", e);
+            throw new ValidationException("Invalid config format", e);
         }
 
         Criterion criterion = new Criterion(
@@ -96,7 +97,7 @@ public class CriterionService {
 
         // Validate config based on type
         if (!CriterionConfigValidator.isValidConfigForType(request.getConfig(), request.getType())) {
-            throw new IllegalArgumentException("Invalid config for criterion type: " + request.getType());
+            throw new ValidationException("Invalid config for criterion type: " + request.getType());
         }
 
         // Serialize config to JSON
@@ -104,7 +105,7 @@ public class CriterionService {
         try {
             configJson = objectMapper.writeValueAsString(request.getConfig());
         } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid config format", e);
+            throw new ValidationException("Invalid config format", e);
         }
 
         criterion.setName(request.getName());

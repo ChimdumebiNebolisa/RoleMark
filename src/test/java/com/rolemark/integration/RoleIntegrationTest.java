@@ -2,8 +2,10 @@ package com.rolemark.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rolemark.dto.AuthResponse;
+import com.rolemark.dto.CriterionRequest;
 import com.rolemark.dto.RoleRequest;
 import com.rolemark.dto.SignupRequest;
+import com.rolemark.entity.Criterion;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -145,6 +147,71 @@ class RoleIntegrationTest {
                 .andExpect(jsonPath("$.message").exists())
                 .andExpect(jsonPath("$.correlationId").exists())
                 .andExpect(jsonPath("$.path").value("/api/roles"))
+                .andExpect(jsonPath("$.timestamp").exists());
+    }
+
+    @Test
+    void duplicateRoleTitleReturns400WithValidationError() throws Exception {
+        // Test: duplicate role title returns 400 with error="VALIDATION_ERROR"
+        RoleRequest roleRequest = new RoleRequest("Duplicate Title", "Job description");
+
+        // Create first role
+        mockMvc.perform(post("/api/roles")
+                        .header("Authorization", "Bearer " + userAToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(roleRequest)))
+                .andExpect(status().isCreated());
+
+        // Try to create duplicate role with same title for same user
+        mockMvc.perform(post("/api/roles")
+                        .header("Authorization", "Bearer " + userAToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(roleRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.message").value("Role title must be unique per user"))
+                .andExpect(jsonPath("$.correlationId").exists())
+                .andExpect(jsonPath("$.path").value("/api/roles"))
+                .andExpect(jsonPath("$.timestamp").exists());
+    }
+
+    @Test
+    void invalidCriterionConfigReturns400WithValidationError() throws Exception {
+        // Test: invalid criterion config returns 400 with error="VALIDATION_ERROR"
+        // First create a role
+        RoleRequest roleRequest = new RoleRequest("Test Role", "Test description");
+        String roleResponse = mockMvc.perform(post("/api/roles")
+                        .header("Authorization", "Bearer " + userAToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(roleRequest)))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        UUID roleId = UUID.fromString(objectMapper.readTree(roleResponse).get("id").asText());
+
+        // Create criterion with invalid config (KEYWORD_SKILL type but missing requiredKeywords)
+        java.util.Map<String, Object> invalidConfig = new java.util.HashMap<>();
+        invalidConfig.put("matchMode", "ANY"); // Missing requiredKeywords
+        CriterionRequest criterionRequest = new CriterionRequest(
+                "Test Criterion",
+                "Test description",
+                100,
+                Criterion.CriterionType.KEYWORD_SKILL,
+                invalidConfig
+        );
+
+        mockMvc.perform(post("/api/roles/" + roleId + "/criteria")
+                        .header("Authorization", "Bearer " + userAToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(criterionRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.message").value("Invalid config for criterion type: KEYWORD_SKILL"))
+                .andExpect(jsonPath("$.correlationId").exists())
+                .andExpect(jsonPath("$.path").value("/api/roles/" + roleId + "/criteria"))
                 .andExpect(jsonPath("$.timestamp").exists());
     }
 }
